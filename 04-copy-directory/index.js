@@ -25,13 +25,13 @@ async function copyDir(src, dest) {
       }
     } else {
       // console.log(`${dest} exist`);
-      fs.rm(dest, { recursive: true }, (err) => {
+      fs.rm(dest, { recursive: true }, async (err) => {
         if (err) {
           console.error(err.message);
           return;
         }
         // console.log('deleted!');
-        copyDir(filePath, filePathDest);
+        await copyDir(filePath, filePathDest);
       });
     }
   });
