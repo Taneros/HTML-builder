@@ -7,8 +7,8 @@ const filePathDest = path.join(__dirname, 'file-copy');
 const fsp = require('fs/promises');
 
 async function copyDir(src, dest) {
-  // let dirExist = false;
   const entries = await fsp.readdir(src, { withFileTypes: true });
+  // check if dir exist else -> delete and create new
   fs.access(dest, async (err) => {
     if (err) {
       // console.log(`${dest} not exist`);
@@ -18,7 +18,7 @@ async function copyDir(src, dest) {
         const srcPath = path.join(src, entry.name);
         const destPath = path.join(dest, entry.name);
         if (entry.isDirectory()) {
-          await copyDir(srcPath, destPath);
+          copyDir(srcPath, destPath);
         } else {
           await fsp.copyFile(srcPath, destPath);
         }
@@ -31,7 +31,7 @@ async function copyDir(src, dest) {
           return;
         }
         // console.log('deleted!');
-        await copyDir(filePath, filePathDest);
+        copyDir(filePath, filePathDest);
       });
     }
   });
