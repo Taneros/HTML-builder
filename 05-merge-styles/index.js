@@ -23,9 +23,9 @@ async function makeBundle(src, dest) {
   });
 
   function bundle() {
-    const writeStream = fs.createWriteStream(bundleStyle, { flags: 'w', encoding: 'utf8' });
+    const writeStream = fs.createWriteStream(bundleStyle, { flags: 'a', encoding: 'utf8' });
     // console.log(entriesSrc);
-    console.log('Look what I found!');
+    console.log('\nLook what I found!');
     entriesSrc.forEach((el, idx) => {
       if (path.extname(el.name) === '.css') {
         console.log(idx + 1, ':', el.name);
@@ -35,9 +35,7 @@ async function makeBundle(src, dest) {
         });
       }
     });
-    writeStream.on('finish', () => {
-      console.log('These files are carefully bundled and saved to', destPath);
-    });
+    console.log('\nThese files are carefully bundled and saved to', destPath);
   }
 }
 
