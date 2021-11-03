@@ -6,38 +6,37 @@ const bundleStyle = path.join(destPath, 'bundle.css');
 const fsp = require('fs/promises');
 
 async function makeBundle(src, dest) {
-  // read directory
-  const entries = await fsp.readdir(src, { withFileTypes: true });
-  // check if dir already exist else -> delete and create new
-  try {
-    await fsp.mkdir(dest);
+  // read directory src
+  const entriesSrc = await fsp.readdir(src, { withFileTypes: true });
+  const entriesDest = await fsp.readdir(dest, { withFileTypes: true });
+  // check if bundle.css exist -> delete bundle.css
+  fs.unlink(bundleStyle, (err) => {
+    if (err) {
+      console.error(err);
+      bundle();
+    }
+    // run bundling function after delete
+    else {
+      console.log(bundleStyle, 'file deleted successfully');
+      bundle();
+    }
+  });
+
+  function bundle() {
     const writeStream = fs.createWriteStream(bundleStyle, { flags: 'w', encoding: 'utf8' });
-    // console.log(entries);
+    // console.log(entriesSrc);
     console.log('Look what I found!');
-    entries.forEach((el, idx) => {
+    entriesSrc.forEach((el, idx) => {
       if (path.extname(el.name) === '.css') {
         console.log(idx + 1, ':', el.name);
         const readStream = fs.ReadStream(path.join(stylesPath, el.name), { flags: 'r', encoding: 'utf8' });
-        readStream.on('data', async (data) => {
-          writeStream.write('\n');
-          await fsp.appendFile(bundleStyle, data + '\n');
+        readStream.on('data', (chunk) => {
+          writeStream.write(chunk + '\n\r');
         });
-
-        // readStream.pipe(writeStream);
       }
     });
-    writeStream.on('close', () => {
+    writeStream.on('finish', () => {
       console.log('These files are carefully bundled and saved to', destPath);
-    });
-  } catch (error) {
-    console.error(error);
-    fs.rm(dest, { recursive: true }, (err) => {
-      if (err) {
-        // console.error(err.message);
-        return;
-      }
-      // console.log('deleted!');
-      makeBundle(stylesPath, destPath);
     });
   }
 }
