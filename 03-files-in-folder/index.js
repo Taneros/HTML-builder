@@ -18,12 +18,13 @@ function convertBytes(bytes) {
   return bytes / Math.pow(1024, i) + ' ' + sizes[i];
 }
 
-function walk(p) {
+function readFolder(p) {
   // read directory
   fs.readdir(p, (err, items) => {
+    if (err) throw new Error(`${err}`);
     // console.log(items);
     // iterate over directory
-    items.forEach((el, idx) => {
+    items.forEach((el) => {
       // console.log(el);
       // create a new path for el
       const newPath = path.join(p, el);
@@ -34,7 +35,7 @@ function walk(p) {
         }
         if (stats.isDirectory()) {
           // console.log('\n', el, 'is directory');
-          walk(newPath);
+          readFolder(newPath);
         } else {
           // dirInfoArr.push(newPath);
           // console.log('\n', el, 'is not directory');
@@ -45,7 +46,7 @@ function walk(p) {
   });
 }
 
-walk(filePath);
+readFolder(filePath);
 
 /***
  * 
