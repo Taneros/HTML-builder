@@ -29,7 +29,7 @@ async function makeBundle(src, dest) {
     entriesSrc.forEach((el, idx) => {
       if (path.extname(el.name) === '.css') {
         console.log(idx + 1, ':', el.name);
-        const readStream = fs.ReadStream(path.join(stylesPath, el.name), { flags: 'r', encoding: 'utf8' });
+        const readStream = fs.createReadStream(path.join(stylesPath, el.name), { flags: 'r', encoding: 'utf8' });
         readStream.on('data', (chunk) => {
           writeStream.write(chunk + '\n\r');
         });
@@ -61,5 +61,8 @@ makeBundle(stylesPath, destPath);
  * create buffer
  *
  * https://youtu.be/eQGBS15vUac?t=3755
+ *
+ *
+ * using readFile and writeFile with promises
  *
  */
