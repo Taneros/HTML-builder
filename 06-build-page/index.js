@@ -19,8 +19,8 @@ async function createProjectDir(dest) {
   fs.access(dest, async (err) => {
     if (err) {
       await fsp.mkdir(dest);
-      assCopyDir(assPathSrc, assPathDist);
-      makeBundle(stylesPath, destPath);
+      assetsCopy(assPathSrc, assPathDist);
+      makeCSSBundle(stylesPath, destPath);
       createIndexHTML();
     } else {
       fs.rm(dest, { recursive: true }, async (err) => {
@@ -32,152 +32,79 @@ async function createProjectDir(dest) {
     }
   });
 }
-// const myPromise = new Promise((res, rej) => {});
 
-// myPromise
-//   .then(() => {
-//     fs.mkdir(projectDistPath, { recursive: true }, (err) => {
-//       if (err) {
-//         throw err;
-//       }
-//       console.log('Directory is created.');
-//     });
-//   })
-//   .then(() => {
-//     assCopyDir(assPathSrc, assPathDist);
-//   })
-//   .then(() => {
-//     makeBundle(stylesPath, destPath);
-//   })
-//   .then(createIndexHTML())
-//   .catch((err) => {
-//     console.error(err);
-//   });
-
-async function assCopyDir(src, dest) {
+async function assetsCopy(src, dest) {
   const entries = await fsp.readdir(src, { withFileTypes: true });
-  fs.access(dest, async (err) => {
-    if (err) {
-      await fsp.mkdir(dest);
-      for (let entry of entries) {
-        const srcPath = path.join(src, entry.name);
-        const destPath = path.join(dest, entry.name);
-        if (entry.isDirectory()) {
-          assCopyDir(srcPath, destPath);
-        } else {
-          await fsp.copyFile(srcPath, destPath);
-        }
-      }
+  await fsp.mkdir(dest);
+  for (let entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      assetsCopy(srcPath, destPath);
     } else {
-      fs.rm(dest, { recursive: true }, async (err) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        assCopyDir(src, dest);
-      });
+      await fsp.copyFile(srcPath, destPath);
     }
-  });
+  }
 }
 
 // make bundle.css -> copy to project-dist
-
-async function makeBundle(src, dest) {
+async function makeCSSBundle(src, dest) {
   // read directory src
   const entriesSrc = await fsp.readdir(src, { withFileTypes: true });
-  // check if bundle exist -> delete bundle.css
-  fs.unlink(bundleStyle, (err) => {
-    if (err) {
-      console.error(err);
-      bundle();
-    }
-    // run bundling function if not exist
-    else {
-      console.log(bundleStyle, 'file deleted!');
-      bundle();
+  const writeStream = fs.createWriteStream(bundleStyle, { flags: 'a', encoding: 'utf8' });
+  entriesSrc.forEach((el, idx) => {
+    if (path.extname(el.name) === '.css') {
+      const readStream = fs.createReadStream(path.join(stylesPath, el.name), { flags: 'r', encoding: 'utf8' });
+      readStream.on('data', (chunk) => {
+        writeStream.write(chunk + '\n\r');
+      });
     }
   });
-  function bundle() {
-    const writeStream = fs.createWriteStream(bundleStyle, { flags: 'a', encoding: 'utf8' });
-    entriesSrc.forEach((el, idx) => {
-      if (path.extname(el.name) === '.css') {
-        const readStream = fs.createReadStream(path.join(stylesPath, el.name), { flags: 'r', encoding: 'utf8' });
-        readStream.on('data', (chunk) => {
-          writeStream.write(chunk + '\n\r');
-        });
-      }
-    });
-    console.log('\nFiles are bundled and saved to', destPath);
-  }
+  // console.log('\nStyles are bundled and saved to', destPath);
 }
 
 async function createIndexHTML() {
-  // copy templates file
-  fs.copyFile(templateHTMLPath, indexHTMLPath, (err) => {
-    if (err) console.error(err);
-    console.log('template.html successfully copied! to', projectDistPath);
-  });
+  // copy templates file to project dest-folder
+  await copyTemplateFile();
+  function copyTemplateFile() {
+    return new Promise((res, rej) => {
+      fs.copyFile(templateHTMLPath, indexHTMLPath, (err) => {
+        if (err) rej(err);
+        else res();
+      });
+    });
+  }
+
+  function readFile(filePath) {
+    return new Promise((res, rej) => {
+      fs.readFile(filePath, (err, data) => {
+        if (err) rej(err);
+        else res(data.toString());
+      });
+    });
+  }
 
   const indexRdStream = fs.createReadStream(indexHTMLPath, { flags: 'r', encoding: 'utf8' });
   const indexWrStream = fs.createWriteStream(path.join(projectDistPath, 'index-upd.html'), { flags: 'w', encoding: 'utf8' });
-  let header = [];
-  readHeader();
-  let articles;
-  readArticles();
-  let footer;
-
-  readFooter();
-
-  function readHeader() {
-    const buffer = [];
-    const rd = fs.createReadStream(path.join(componentsPathSrc, 'header.html'));
-    rd.on('data', (chunk) => {
-      // console.log(chunk.toString());
-      buffer.push(chunk.toString());
-    });
-    rd.on('end', () => {
-      // console.log(buffer.join(''));
-      header = buffer.slice();
-      // console.log(header[0]);
-    });
-    return buffer.join('');
-  }
-
-  function readArticles() {
-    const buffer = [];
-    const rd = fs.createReadStream(path.join(componentsPathSrc, 'articles.html'));
-    rd.on('data', (chunk) => {
-      buffer.push(chunk.toString());
-    });
-    articles = buffer.join('');
-  }
-
-  function readFooter() {
-    const buffer = [];
-    const rd = fs.createReadStream(path.join(componentsPathSrc, 'footer.html'));
-    rd.on('data', (chunk) => {
-      buffer.push(chunk.toString());
-    });
-    footer = buffer.join('');
-  }
 
   indexRdStream.on('data', async (chunk) => {
+    // console.log('reading is on!');
     chunk = chunk
       .toString()
-      .replace(/{{header}}/, '****')
-      .replace(/{{articles}}/, articles)
-      .replace(/{{footer}}/, footer);
+      .replace(/{{header}}/, await readFile(path.join(componentsPathSrc, 'header.html')))
+      .replace(/{{articles}}/, await readFile(path.join(componentsPathSrc, 'articles.html')))
+      .replace(/{{footer}}/, await readFile(path.join(componentsPathSrc, 'footer.html')));
     indexWrStream.write(chunk);
   });
 
-  indexRdStream.on('end', () => {
-    // indexWrStream.end();
-    fs.unlink(path.join(destPath, 'index.html'), (err) => {
+  indexRdStream.on('end', async () => {
+    // console.log('reading stream ended');
+    await fsp.unlink(path.join(destPath, 'index.html'), (err) => {
       if (err) {
         console.error(err);
       }
     });
-    fs.rename(path.join(destPath, 'index-upd.html'), path.join(destPath, 'index.html'), (err) => {
+    await fsp.rename(path.join(destPath, 'index-upd.html'), path.join(destPath, 'index.html'), (err) => {
       if (err) {
         console.error(err);
       }
