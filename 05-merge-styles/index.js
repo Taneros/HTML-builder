@@ -15,7 +15,7 @@ async function makeBundle(src, dest) {
       console.error(err);
       bundle();
     }
-    // run bundling function after delete
+    // run bundling function if not exist
     else {
       console.log(bundleStyle, 'file deleted successfully');
       bundle();
