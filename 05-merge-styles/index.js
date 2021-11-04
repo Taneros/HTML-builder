@@ -12,12 +12,12 @@ async function makeBundle(src, dest) {
   // check if bundle.css exist -> delete bundle.css
   fs.unlink(bundleStyle, (err) => {
     if (err) {
-      console.error(err);
+      // console.error(err);
       bundle();
     }
     // run bundling function if not exist
     else {
-      console.log(bundleStyle, 'file deleted successfully');
+      // console.log(bundleStyle, 'file deleted successfully');
       bundle();
     }
   });
@@ -25,17 +25,17 @@ async function makeBundle(src, dest) {
   function bundle() {
     const writeStream = fs.createWriteStream(bundleStyle, { flags: 'a', encoding: 'utf8' });
     // console.log(entriesSrc);
-    console.log('\nLook what I found!');
+    // console.log('\nLook what I found!');
     entriesSrc.forEach((el, idx) => {
       if (path.extname(el.name) === '.css') {
-        console.log(idx + 1, ':', el.name);
+        // console.log(idx + 1, ':', el.name);
         const readStream = fs.createReadStream(path.join(stylesPath, el.name), { flags: 'r', encoding: 'utf8' });
         readStream.on('data', (chunk) => {
           writeStream.write(chunk + '\n\r');
         });
       }
     });
-    console.log('\nThese files are carefully bundled and saved to', destPath);
+    console.log('\nStyle files are carefully bundled and saved to', destPath);
   }
 }
 
