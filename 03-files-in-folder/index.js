@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const filePath = path.join(__dirname);
+const filePath = path.join(__dirname, 'secret-folder');
 
 function convertBytes(bytes) {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -33,11 +33,7 @@ function readFolder(p) {
         if (err) {
           return console.log(err);
         }
-        if (stats.isDirectory()) {
-          // console.log('\n', el, 'is directory');
-          readFolder(newPath);
-        } else {
-          // dirInfoArr.push(newPath);
+        if (!stats.isDirectory()) {
           // console.log('\n', el, 'is not directory');
           console.log(path.basename(el).split('.')[0], '-', path.basename(el).split('.')[1], '- ', convertBytes(stats.size));
         }
@@ -47,40 +43,3 @@ function readFolder(p) {
 }
 
 readFolder(filePath);
-
-/***
- * 
- * 
- * 
- *   let dirInfoArr = [];
-  const dirInfo = await fs.readdir(filePath);
-  for (let item of dirInfo) {
-    const newPath = path.join(filePath, item);
-    if (await fs.stat(newPath).isDiectory()) {
-      dirInfoArr = [...dirInfoArr, ...(await walk(newPath))];
-    } else {
-      dirInfoArr.push(newPath);
-    }
-  }
-
-  return dirInfoArr;
-
->>>> https://nodejs.dev/learn/nodejs-file-stats
-
-const fs = require('fs')
-fs.stat('/Users/joe/test.txt', (err, stats) => {
-  if (err) {
-    console.error(err)
-    return
-  }
-
-  stats.isFile() //true
-  stats.isDirectory() //false
-  stats.isSymbolicLink() //false
-  stats.size //1024000 //= 1MB
-})
-
-
-
-
- */
