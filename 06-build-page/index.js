@@ -12,7 +12,6 @@ const destPath = path.join(__dirname, 'project-dist');
 const bundleStyle = path.join(destPath, 'style.css');
 
 // create folder project-dist
-
 createProjectDir(projectDistPath);
 
 async function createProjectDir(dest) {
@@ -33,6 +32,7 @@ async function createProjectDir(dest) {
   });
 }
 
+// copy assets folder
 async function assetsCopy(src, dest) {
   const entries = await fsp.readdir(src, { withFileTypes: true });
   await fsp.mkdir(dest);
