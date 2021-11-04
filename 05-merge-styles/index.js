@@ -15,7 +15,7 @@ async function makeBundle(src, dest) {
       console.error(err);
       bundle();
     }
-    // run bundling function after delete
+    // run bundling function if not exist
     else {
       console.log(bundleStyle, 'file deleted successfully');
       bundle();
@@ -23,21 +23,19 @@ async function makeBundle(src, dest) {
   });
 
   function bundle() {
-    const writeStream = fs.createWriteStream(bundleStyle, { flags: 'w', encoding: 'utf8' });
+    const writeStream = fs.createWriteStream(bundleStyle, { flags: 'a', encoding: 'utf8' });
     // console.log(entriesSrc);
-    console.log('Look what I found!');
+    console.log('\nLook what I found!');
     entriesSrc.forEach((el, idx) => {
       if (path.extname(el.name) === '.css') {
         console.log(idx + 1, ':', el.name);
-        const readStream = fs.ReadStream(path.join(stylesPath, el.name), { flags: 'r', encoding: 'utf8' });
+        const readStream = fs.createReadStream(path.join(stylesPath, el.name), { flags: 'r', encoding: 'utf8' });
         readStream.on('data', (chunk) => {
           writeStream.write(chunk + '\n\r');
         });
       }
     });
-    writeStream.on('finish', () => {
-      console.log('These files are carefully bundled and saved to', destPath);
-    });
+    console.log('\nThese files are carefully bundled and saved to', destPath);
   }
 }
 
@@ -63,5 +61,8 @@ makeBundle(stylesPath, destPath);
  * create buffer
  *
  * https://youtu.be/eQGBS15vUac?t=3755
+ *
+ *
+ * using readFile and writeFile with promises
  *
  */
