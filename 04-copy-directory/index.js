@@ -3,7 +3,7 @@ const fs = require('fs');
 // const mkrDir = require('fs/promises');
 const path = require('path');
 const filePath = path.join(__dirname, 'files');
-const filePathDest = path.join(__dirname, 'file-copy');
+const filePathDest = path.join(__dirname, 'files-copy');
 const fsp = require('fs/promises');
 
 async function copyDir(src, dest) {
@@ -31,7 +31,7 @@ async function copyDir(src, dest) {
           return;
         }
         // console.log('deleted!');
-        copyDir(filePath, filePathDest);
+        copyDir(src, dest);
       });
     }
   });
