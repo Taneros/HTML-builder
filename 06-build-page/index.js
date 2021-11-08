@@ -91,9 +91,10 @@ async function createIndexHTML() {
     // console.log('reading is on!');
     chunk = chunk
       .toString()
-      .replace(/{{header}}/, await readFile(path.join(componentsPathSrc, 'header.html')))
-      .replace(/{{articles}}/, await readFile(path.join(componentsPathSrc, 'articles.html')))
-      .replace(/{{footer}}/, await readFile(path.join(componentsPathSrc, 'footer.html')));
+      .replace(/{{header}}/g, await readFile(path.join(componentsPathSrc, 'header.html')))
+      .replace(/{{articles}}/g, await readFile(path.join(componentsPathSrc, 'articles.html')))
+      .replace(/{{about}}/g, await readFile(path.join(componentsPathSrc, 'about.html')))
+      .replace(/{{footer}}/g, await readFile(path.join(componentsPathSrc, 'footer.html')));
     indexWrStream.write(chunk);
   });
 
