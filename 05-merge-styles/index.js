@@ -8,7 +8,7 @@ const fsp = require('fs/promises');
 async function makeBundle(src, dest) {
   // read directory src
   const entriesSrc = await fsp.readdir(src, { withFileTypes: true });
-  const entriesDest = await fsp.readdir(dest, { withFileTypes: true });
+  // const entriesDest = await fsp.readdir(dest, { withFileTypes: true });
   // check if bundle.css exist -> delete bundle.css
   fs.unlink(bundleStyle, (err) => {
     if (err) {
@@ -35,34 +35,8 @@ async function makeBundle(src, dest) {
         });
       }
     });
-    console.log('\nStyle files are carefully bundled and saved to', destPath);
+    // console.log('\nStyle files are carefully bundled and saved to', destPath);
   }
 }
 
 makeBundle(stylesPath, destPath);
-
-/****
- *
- * create writeable stream
- * use pipe https://www.youtube.com/watch?v=8Vmvsn5JhVY&list=PLylgIRlJtHWQ4ccsyav6dd0y_SAgLXOnr&index=8
- *
- * Timur Shems
- * https://youtu.be/eQGBS15vUac?t=406
- *
- *  use buffer
- * https://youtu.be/eQGBS15vUac?t=2497
- *
- *
- *
- * use pipe
- * https://youtu.be/eQGBS15vUac?t=3463
- *
- *
- * create buffer
- *
- * https://youtu.be/eQGBS15vUac?t=3755
- *
- *
- * using readFile and writeFile with promises
- *
- */
