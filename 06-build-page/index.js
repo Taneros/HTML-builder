@@ -94,12 +94,12 @@ async function createIndexHTML() {
     chunk = chunk.toString();
 
     let templates = chunk.match(/[^{\}]+(?=})/gm);
-    console.log(templates);
+    // console.log(templates);
 
     for await (let template of templates) {
-      console.log('template', template);
+      // console.log('template', template);
       let regexp = new RegExp(`{{${template}}}`, 'g');
-      console.log('regex', regexp);
+      // console.log('regex', regexp);
       chunk = chunk.replace(regexp, await readFile(path.join(componentsPathSrc, `${template}.html`)));
       // console.log(chunk);
     }
