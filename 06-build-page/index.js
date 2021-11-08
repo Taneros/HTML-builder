@@ -75,6 +75,7 @@ async function createIndexHTML() {
     });
   }
 
+  // read any file
   function readFile(filePath) {
     return new Promise((res, rej) => {
       fs.readFile(filePath, (err, data) => {
@@ -89,12 +90,20 @@ async function createIndexHTML() {
 
   indexRdStream.on('data', async (chunk) => {
     // console.log('reading is on!');
-    chunk = chunk
-      .toString()
-      .replace(/{{header}}/g, await readFile(path.join(componentsPathSrc, 'header.html')))
-      .replace(/{{articles}}/g, await readFile(path.join(componentsPathSrc, 'articles.html')))
-      .replace(/{{about}}/g, await readFile(path.join(componentsPathSrc, 'about.html')))
-      .replace(/{{footer}}/g, await readFile(path.join(componentsPathSrc, 'footer.html')));
+    // ([{][{]${module}[}][}], 'gi')
+    chunk = chunk.toString();
+
+    let templates = chunk.match(/[^{\}]+(?=})/gm);
+    console.log(templates);
+
+    for await (let template of templates) {
+      console.log('template', template);
+      let regexp = new RegExp(`{{${template}}}`, 'g');
+      console.log('regex', regexp);
+      chunk = chunk.replace(regexp, await readFile(path.join(componentsPathSrc, `${template}.html`)));
+      // console.log(chunk);
+    }
+
     indexWrStream.write(chunk);
   });
 
